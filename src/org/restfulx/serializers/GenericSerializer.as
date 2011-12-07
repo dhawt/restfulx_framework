@@ -150,7 +150,13 @@ package org.restfulx.serializers {
             ref = initializeModel(refId, targetType);
           }
   
-          if (updatingExistingReference && object[targetName] != ref) {
+		  // Modified DH: this causes weird errors in the event we get multiple copies of the same object, where
+		  // the object in the cache is "different" than the referenced object, even though the IDs are identical.
+		  // It is better to compare by ID here.  
+		  // 	(See http://blog.iconara.net/2007/11/25/architectural-atrocities-part-8-is-there-no-equality/)
+		  //if (updatingExistingReference && object[targetName] != ref) {
+		  var objectsAreDifferent:Boolean = (object[targetName] != ref) && (object[targetName] == null || ref == null || object[targetName].id != ref.id);
+		  if (updatingExistingReference && objectsAreDifferent) {
             RxUtils.cleanupModelReferences(object, fqn, targetName);
           }
           
